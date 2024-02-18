@@ -5,13 +5,14 @@
 * Set a number of key parameters for the GEPD country implementation
 global master_seed  17893   // Ensures reproducibility
 
-global country "NGA"
-global country_name  "Nigeria - Edo State"
+global country "PAK"
+global country_name  "Pakistan - Sindh"
 global year  "2023"
-global strata lga  urban_rural // Strata for sampling
+global strata district location // Strata for sampling
 
 * Execution parameters
-global weights_file_name "GEPD_Edo_weights_2023-06-20" // Name of the file with the sampling
-global school_code_name "ubecschoolcode" // Name of the school code variable in the weights file
-global other_info senatorialdistrict classification schooltype // other info needed in sampling frame
+global weights_file_name "GEPD_Sindh_weights_200_2024-02-01.csv" // Name of the file with the sampling
+global school_code_name "semis_code" // Name of the school code variable in the weights file
+global other_info tehsil shift schoollevel // Other info needed in sampling frame
 *-------------------------------------------------------------------------------
+

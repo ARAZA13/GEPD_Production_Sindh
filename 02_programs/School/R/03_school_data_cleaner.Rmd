@@ -30,8 +30,8 @@ library(GGally)
 library(srvyr)
 library(flextable)
 #Country name and year of survey
-country_name <-'Nigeria-Edo'
-country <- "NGA"
+country_name <-'Pakistan-Balochistan'
+country <- "PAK"
 year <- '2023'
 teach=FALSE
 
@@ -41,9 +41,9 @@ teach=FALSE
 #########################
 #The download_folder will be the location of where raw data is downloaded from the API
 #The save_folder will be the location of where cleaned data is stored
-dir <- here()
-data_dir <- here('01_GEPD_raw_data/')
-processed_dir <- here('03_GEPD_processed_data/')
+dir <- ('C:/Users/wb549384/OneDrive - WBG/Desktop/GEPD-Revamped WF/GEPD_Production-Balochistan')
+data_dir <- ('01_GEPD_raw_data/')
+processed_dir <- ('03_GEPD_processed_data/')
 
 
 

@@ -16,7 +16,7 @@ gl save_dir "${processed_dir}\\Public_Officials\\Confidential\\"
 cap frame create public
 frame change public
 *Load the school data
-use "${data_dir}/Public_Officials/public_officials.dta"
+use "${data_dir}/Public_Officials/Sindh_public_officials.dta"
 
 
 
@@ -30,7 +30,7 @@ frame change teachers
 
 use "${processed_dir}/School/Confidential/Cleaned/teachers_Stata.dta"
 
-svyset school_code, strata(strata) singleunit(scaled) weight(school_weight)   || TEACHERS__id, weight(teacher_abs_weight)
+svyset school_code, strata(strata) singleunit(scaled) weight(school_weight)   || teachers_id, weight(teacher_abs_weight)
 svy: mean absence_rate
 gl teacher_absence =  _b[absence_rate]
 

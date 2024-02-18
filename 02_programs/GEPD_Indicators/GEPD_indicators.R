@@ -6,13 +6,13 @@ library(Hmisc)
 library(survey)
 library(here)
 library(readxl)
-
+library(srvyr)
 
 #Country name and year of survey
-country_name <-'Nigeria-Edo'
-country <- "NGA"
+country_name <-'Pakistan-Sindh'
+country <- "PAK"
 year <- '2023'
-software <- "R" #choose R or Stata
+software <- "Stata" #choose R or Stata
 
 
 #########################
@@ -35,7 +35,8 @@ GEPD_template <- read_csv(here("04_GEPD_Indicators","GEPD_indicator_template.csv
 
 #load main files
 school_dta <- read_dta(here(processed_dir,"School","Confidential","Cleaned", paste0("school_",software,".dta")))
-teachers_dta <- read_dta(here(processed_dir,"School","Confidential","Cleaned", paste0("teachers_",software,".dta"))) 
+teachers_dta <- read_dta(here(processed_dir,"School","Confidential","Cleaned", paste0("teachers_",software,".dta"))) %>%
+  filter(!is.na(teachers_id))
 first_grade <- read_dta(here(processed_dir,"School","Confidential","Cleaned", paste0("first_grade_",software,".dta")))
 fourth_grade <- read_dta(here(processed_dir,"School","Confidential","Cleaned", paste0("fourth_grade_",software,".dta")))
 public_officials_dta <- read_dta(here(processed_dir,"Public_Officials","Confidential", "public_officials.dta"))
@@ -182,12 +183,12 @@ indicator_stats <- function(name, indicator, dataset, tag,  unit) {
       filter(!is.na(school_weight)) %>%
       filter(!is.infinite(school_weight)) %>%
       filter(!is.na(teacher_abs_weight)) %>%
-      select(VALUE, one_of(strata), school_weight, teacher_abs_weight, school_code, TEACHERS__id ) %>%
+      select(VALUE, one_of(strata), school_weight, teacher_abs_weight, school_code, teachers_id ) %>%
       pivot_longer(cols='VALUE',
                    names_to = 'indicators',
                    values_to='value') %>%
       as_survey_design(
-        id=c(school_code, TEACHERS__id),
+        id=c(school_code, teachers_id),
         strata=strata,
         weight=c(school_weight, teacher_abs_weight)) %>%
       ungroup() %>%
@@ -238,12 +239,12 @@ indicator_stats <- function(name, indicator, dataset, tag,  unit) {
       filter(!is.na(school_weight)) %>%
       filter(!is.infinite(school_weight)) %>%
       filter(!is.na(teacher_questionnaire_weight)) %>%
-      select(VALUE, one_of(strata), school_weight, teacher_questionnaire_weight, school_code, TEACHERS__id ) %>%
+      select(VALUE, one_of(strata), school_weight, teacher_questionnaire_weight, school_code, teachers_id ) %>%
       pivot_longer(cols='VALUE',
                    names_to = 'indicators',
                    values_to='value') %>%
       as_survey_design(
-        id=c(school_code, TEACHERS__id),
+        id=c(school_code, teachers_id),
         strata=strata,
         weight=c(school_weight, teacher_questionnaire_weight)) %>%
       ungroup() %>%
@@ -294,12 +295,12 @@ indicator_stats <- function(name, indicator, dataset, tag,  unit) {
       filter(!is.na(school_weight)) %>%
       filter(!is.na(teacher_content_weight)) %>%
       filter(!is.infinite(school_weight)) %>%
-      select(VALUE, one_of(strata), school_weight, teacher_content_weight, school_code, TEACHERS__id ) %>%
+      select(VALUE, one_of(strata), school_weight, teacher_content_weight, school_code, teachers_id ) %>%
       pivot_longer(cols='VALUE',
                    names_to = 'indicators',
                    values_to='value') %>%
       as_survey_design(
-        id=c(school_code, TEACHERS__id),
+        id=c(school_code, teachers_id),
         strata=strata,
         weight=c(school_weight, teacher_content_weight)) %>%
       ungroup() %>%
@@ -350,12 +351,12 @@ indicator_stats <- function(name, indicator, dataset, tag,  unit) {
       filter(!is.na(school_weight)) %>%
       filter(!is.infinite(school_weight)) %>%
       filter(!is.na(teacher_pedagogy_weight)) %>%
-      select(VALUE, one_of(strata), school_weight, teacher_pedagogy_weight, school_code, TEACHERS__id ) %>%
+      select(VALUE, one_of(strata), school_weight, teacher_pedagogy_weight, school_code, teachers_id ) %>%
       pivot_longer(cols='VALUE',
                    names_to = 'indicators',
                    values_to='value') %>%
       as_survey_design(
-        id=c(school_code, TEACHERS__id),
+        id=c(school_code, teachers_id),
         strata=strata,
         weight=c(school_weight, teacher_pedagogy_weight)) %>%
       ungroup() %>%
@@ -689,29 +690,29 @@ indicators <-   list(
   #######################################
   
   
-  # c("SE.PRM.PEDG     ","100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "All"),
-  # c("SE.PRM.PEDG.1   ","100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "All"),
-  # c("SE.PRM.PEDG.1.F", "100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "Female"),
-  # c("SE.PRM.PEDG.1.M", "100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "Male"),
-  # c("SE.PRM.PEDG.1.R ","100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "Rural"),
-  # c("SE.PRM.PEDG.1.U ","100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "Urban"),
-  # c("SE.PRM.PEDG.2   ","100*as.numeric(classroom_culture>=3)", "teacher_pedagogy", "PEDG",  "All"),  
-  # c("SE.PRM.PEDG.2.F", "100*as.numeric(classroom_culture>=3)", "teacher_pedagogy", "PEDG",  "Female"),
-  # c("SE.PRM.PEDG.2.M", "100*as.numeric(classroom_culture>=3)", "teacher_pedagogy", "PEDG",  "Male"),
-  # c("SE.PRM.PEDG.2.R ","100*as.numeric(classroom_culture>=3)", "teacher_pedagogy", "PEDG",  "Rural"),
-  # c("SE.PRM.PEDG.2.U ","100*as.numeric(classroom_culture>=3)", "teacher_pedagogy", "PEDG",  "Urban"),
-  # c("SE.PRM.PEDG.3   ","100*as.numeric(instruction>=3)", "teacher_pedagogy", "PEDG",  "All"),
-  # c("SE.PRM.PEDG.3.F", "100*as.numeric(instruction>=3)", "teacher_pedagogy", "PEDG",  "Female"),
-  # c("SE.PRM.PEDG.3.M", "100*as.numeric(instruction>=3)", "teacher_pedagogy", "PEDG",  "Male"),
-  # c("SE.PRM.PEDG.3.R ","100*as.numeric(instruction>=3)", "teacher_pedagogy", "PEDG",  "Rural"),
-  # c("SE.PRM.PEDG.3.U ","100*as.numeric(instruction>=3)", "teacher_pedagogy", "PEDG",  "Urban"),
-  # c("SE.PRM.PEDG.4   ","100*as.numeric(socio_emotional_skills>=3)", "teacher_pedagogy", "PEDG",  "All"),
-  # c("SE.PRM.PEDG.4.F", "100*as.numeric(socio_emotional_skills>=3)", "teacher_pedagogy", "PEDG",  "Female"),
-  # c("SE.PRM.PEDG.4.M", "100*as.numeric(socio_emotional_skills>=3)", "teacher_pedagogy", "PEDG",  "Male"),
-  # c("SE.PRM.PEDG.4.R ","100*as.numeric(socio_emotional_skills>=3)", "teacher_pedagogy", "PEDG",  "Rural"),
-  # c("SE.PRM.PEDG.4.U ","100*as.numeric(socio_emotional_skills>=3)", "teacher_pedagogy", "PEDG",  "Urban"),
-  # 
-  
+  c("SE.PRM.PEDG     ","100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "All"),
+  c("SE.PRM.PEDG.1   ","100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "All"),
+  c("SE.PRM.PEDG.1.F", "100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "Female"),
+  c("SE.PRM.PEDG.1.M", "100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "Male"),
+  c("SE.PRM.PEDG.1.R ","100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "Rural"),
+  c("SE.PRM.PEDG.1.U ","100*as.numeric(teach_score>=3)", "teacher_pedagogy", "PEDG",  "Urban"),
+  c("SE.PRM.PEDG.2   ","100*as.numeric(classroom_culture>=3)", "teacher_pedagogy", "PEDG",  "All"),
+  c("SE.PRM.PEDG.2.F", "100*as.numeric(classroom_culture>=3)", "teacher_pedagogy", "PEDG",  "Female"),
+  c("SE.PRM.PEDG.2.M", "100*as.numeric(classroom_culture>=3)", "teacher_pedagogy", "PEDG",  "Male"),
+  c("SE.PRM.PEDG.2.R ","100*as.numeric(classroom_culture>=3)", "teacher_pedagogy", "PEDG",  "Rural"),
+  c("SE.PRM.PEDG.2.U ","100*as.numeric(classroom_culture>=3)", "teacher_pedagogy", "PEDG",  "Urban"),
+  c("SE.PRM.PEDG.3   ","100*as.numeric(instruction>=3)", "teacher_pedagogy", "PEDG",  "All"),
+  c("SE.PRM.PEDG.3.F", "100*as.numeric(instruction>=3)", "teacher_pedagogy", "PEDG",  "Female"),
+  c("SE.PRM.PEDG.3.M", "100*as.numeric(instruction>=3)", "teacher_pedagogy", "PEDG",  "Male"),
+  c("SE.PRM.PEDG.3.R ","100*as.numeric(instruction>=3)", "teacher_pedagogy", "PEDG",  "Rural"),
+  c("SE.PRM.PEDG.3.U ","100*as.numeric(instruction>=3)", "teacher_pedagogy", "PEDG",  "Urban"),
+  c("SE.PRM.PEDG.4   ","100*as.numeric(socio_emotional_skills>=3)", "teacher_pedagogy", "PEDG",  "All"),
+  c("SE.PRM.PEDG.4.F", "100*as.numeric(socio_emotional_skills>=3)", "teacher_pedagogy", "PEDG",  "Female"),
+  c("SE.PRM.PEDG.4.M", "100*as.numeric(socio_emotional_skills>=3)", "teacher_pedagogy", "PEDG",  "Male"),
+  c("SE.PRM.PEDG.4.R ","100*as.numeric(socio_emotional_skills>=3)", "teacher_pedagogy", "PEDG",  "Rural"),
+  c("SE.PRM.PEDG.4.U ","100*as.numeric(socio_emotional_skills>=3)", "teacher_pedagogy", "PEDG",  "Urban"),
+
+
   #######################################
   # 	Basic Inputs	(INPT)
   #######################################
@@ -725,6 +726,7 @@ indicators <-   list(
   c("SE.PRM.INPT.3   ","33*textbooks+ 67*pens_etc", "school", "INPT",  "All") ,
   c("SE.PRM.INPT.3.R ","33*textbooks+ 67*pens_etc", "school", "INPT",  "Rural") ,
   c("SE.PRM.INPT.3.U ","33*textbooks + 67*pens_etc", "school", "INPT",  "Urban"),
+  c("SE.PRM.INPT.2","100*blackboard_functional", "school", "INPT",  "All"),
   c("SE.PRM.INPT.2.R ","100*blackboard_functional", "school", "INPT",  "Rural"),
   c("SE.PRM.INPT.2.U ","100*blackboard_functional", "school", "INPT",  "Urban"),
   c("SE.PRM.INPT.4   ","100*share_desk", "school", "INPT",  "All"),
@@ -1404,5 +1406,6 @@ indicator_data <- left_join(indicator_data, GEPD_template) %>%
 
 #save as csv
 write_excel_csv(indicator_data, here('04_GEPD_Indicators',paste0(country,"_GEPD_Indicators_", software,".csv")))
+
 
 

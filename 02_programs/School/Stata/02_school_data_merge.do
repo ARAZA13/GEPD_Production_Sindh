@@ -16,7 +16,7 @@ local not1 interview__id
 * Append files from various questionnaires
 ***************
 ***************
-
+/*
 gl dir_v7 "${data_dir}\\School\\School Survey - Version 7 - without 10 Revisited Schools\\"
 gl dir_v8 "${data_dir}\\School\\School Survey - Version 8 - without 10 Revisited Schools\\"
 
@@ -33,6 +33,7 @@ foreach file of local files_v7 {
 	append using "${dir_v8}`file'", force
 	save "${dir_saved}`file'", replace
 }
+*/
 
 ***************
 ***************
@@ -46,7 +47,7 @@ foreach file of local files_v7 {
 frame create school
 frame change school
 
-use "${data_dir}\\School\\epdash.dta" 
+use "${data_dir}\\School\\EPDashboard2.dta" 
 
 ********
 *read in the school weights
@@ -58,7 +59,11 @@ import delimited "${data_dir}\\Sampling\\${weights_file_name}"
 
 * rename school code
 rename ${school_code_name} school_code 
+clonevar  urban_rural = location
 
+* Comment_AR: adjust tehsil variable in the sample file. Confirm correct sample file from Brian.
+
+ren taluka tehsil
 
 keep school_code ${strata} ${other_info} strata_prob ipw urban_rural
 
@@ -71,6 +76,10 @@ destring school_code, replace force
 destring ipw, replace force
 duplicates drop school_code, force
 
+
+* Comment_AR: Drop one missing school_code : Confirm correct sample file.
+
+drop if school_code == .
 ******
 * Merge the weights
 *******
@@ -134,9 +143,21 @@ frame change teachers
 * We are assuming the teacher level modules (Teacher roster, Questionnaire, Pedagogy, and Content Knowledge have already been linked here)
 * See Merge_Teacher_Modules code folder for help in this task if needed
 ********
-use "${data_dir}\\School\\Edo_teacher_level.dta" 
 
-recode m2saq3 1=2 0=1
+* use "${data_dir}\\School\\Balochistan_teacher_level.dta" 
+
+
+use "${data_dir}\\School\\Sindh_teacher_level_test.dta"
+
+* Rename all variables to lower case:
+ren *, lower 
+
+clonevar teachers_id = teachers__id
+
+fre  m2saq3
+
+* Comment_AR: Commented out as gender variable is already correctly formatted. 
+* recode m2saq3 1=2 0=1
 
 
 foreach var in $other_info {
@@ -144,8 +165,8 @@ foreach var in $other_info {
 }
 cap drop $strata
 
-frlink m:1 interview__key, frame(school_collapse_temp)
-frget school_code ${strata} $other_info urban_rural strata school_weight numEligible numEligible4th, from(school_collapse_temp)
+frlink m:1 interview__key, frame(school)
+frget school_code ${strata} $other_info urban_rural strata school_weight numEligible numEligible4th, from(school)
 
 *get number of 4th grade teachers for weights
 egen g4_teacher_count=sum(m3saq2__4), by(school_code)
@@ -178,6 +199,24 @@ gen teacher_pedagogy_weight=numEligible4th/1 // one teacher selected
 replace teacher_pedagogy_weight=1 if missing(teacher_pedagogy_weight) //fix issues where no g1 teachers listed. Can happen in very small schools
 
 drop if missing(school_weight)
+
+
+
+
+
+
+
+
+********************************************************************************
+* Comment_AR: TEACH Run:
+do "${clone}/02_programs/School/Stata/teach_chk.do"
+
+
+********************************************************************************
+
+
+
+
 
 save "${processed_dir}\\School\\Confidential\\Merged\\teachers.dta" , replace
 
